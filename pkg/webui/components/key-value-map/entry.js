@@ -31,35 +31,40 @@ class Entry extends React.Component {
   @bind
   handleRemoveButtonClicked(event) {
     const { onRemoveButtonClick, index } = this.props
+
     onRemoveButtonClick(index, event)
   }
 
   @bind
   handleKeyChanged(newKey) {
     const { onChange, index } = this.props
+
     onChange(index, { key: newKey })
   }
 
   @bind
   handleValueChanged(newValue) {
     const { onChange, index } = this.props
+
     onChange(index, { value: newValue })
   }
 
   render() {
-    const { name, index, keyPlaceholder, valuePlaceholder, value, onBlur } = this.props
+    const { name, index, keyPlaceholder, valuePlaceholder, value, onBlur, indexAsKey } = this.props
 
     return (
       <div className={style.entriesRow}>
-        <Input
-          className={style.input}
-          name={`${name}[${index}].key`}
-          placeholder={keyPlaceholder}
-          type="text"
-          onChange={this.handleKeyChanged}
-          value={value.key}
-          code
-        />
+        {!indexAsKey && (
+          <Input
+            className={style.input}
+            name={`${name}[${index}].key`}
+            placeholder={keyPlaceholder}
+            type="text"
+            onChange={this.handleKeyChanged}
+            value={value.key}
+            code
+          />
+        )}
         <Input
           className={style.input}
           name={`${name}[${index}].value`}
@@ -67,7 +72,7 @@ class Entry extends React.Component {
           type="text"
           onChange={this.handleValueChanged}
           onBlur={onBlur}
-          value={value.value}
+          value={indexAsKey ? value : value.value}
           code
         />
         <Button
@@ -84,12 +89,16 @@ class Entry extends React.Component {
 
 Entry.propTypes = {
   index: PropTypes.number.isRequired,
+  indexAsKey: PropTypes.bool.isRequired,
   keyPlaceholder: PropTypes.message.isRequired,
   name: PropTypes.string.isRequired,
   onBlur: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onRemoveButtonClick: PropTypes.func.isRequired,
-  value: PropTypes.shape({ key: PropTypes.string, value: PropTypes.string }).isRequired,
+  value: PropTypes.shape({
+    key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    value: PropTypes.any,
+  }).isRequired,
   valuePlaceholder: PropTypes.message.isRequired,
 }
 
