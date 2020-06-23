@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -63,20 +64,45 @@ func runYarnV(args ...string) error {
 	return sh.RunV("npx", append([]string{"yarn"}, args...)...)
 }
 
-func runYarnCommand(cmd string, args ...string) error {
+func (Js) runYarnCommand(cmd string, args ...string) error {
 	return runYarn(append([]string{"run", cmd}, args...)...)
 }
 
-func runYarnCommandV(cmd string, args ...string) error {
+func (Js) runYarnCommandV(cmd string, args ...string) error {
 	return runYarnV(append([]string{"run", cmd}, args...)...)
 }
 
-func (Js) runWebpack(config string, args ...string) error {
-	return runYarnCommand("webpack", append([]string{fmt.Sprintf("--config=%s", config)}, args...)...)
+func (js Js) runWebpack(config string, args ...string) error {
+	return js.runYarnCommand("webpack", append([]string{fmt.Sprintf("--config=%s", config)}, args...)...)
 }
 
-func (Js) runEslint(args ...string) error {
-	return runYarnCommand("eslint", append([]string{"--color", "--no-ignore"}, args...)...)
+func (js Js) runEslint(args ...string) error {
+	return js.runYarnCommand("eslint", append([]string{"--color", "--no-ignore"}, args...)...)
+}
+
+func (js Js) waitOn() error {
+	u, err := url.Parse(js.getURL())
+	if err != nil {
+		return err
+	}
+	return js.runYarnCommand("wait-on", append([]string{
+		fmt.Sprintf("--timeout=%d", 120000),
+		fmt.Sprintf("--interval=%d", 1000),
+		fmt.Sprintf("http-get://%s/oauth", u.Host),
+	})...)
+}
+
+func (js Js) runCypress(command string, args ...string) error {
+	mg.Deps(js.waitOn)
+
+	return js.runYarnCommand("cypress", append([]string{command, fmt.Sprintf("--config-file=%s", filepath.Join("config", "cypress.json")), "--config", fmt.Sprintf("baseUrl=%s", js.getURL())}, args...)...)
+}
+
+func (js Js) getURL() string {
+	if js.isProductionMode() {
+		return "http://localhost:1885"
+	}
+	return "http://localhost:8080"
 }
 
 func (Js) isProductionMode() bool {
@@ -186,7 +212,7 @@ func (js Js) Serve() error {
 		fmt.Println("Running Webpack for Main Bundle in watch mode")
 	}
 	os.Setenv("DEV_SERVER_BUILD", "true")
-	return runYarnCommandV("webpack-dev-server",
+	return js.runYarnCommandV("webpack-dev-server",
 		"--config", "config/webpack.config.babel.js",
 		"-w",
 	)
@@ -290,7 +316,7 @@ func (js Js) Test() error {
 	if mg.Verbose() {
 		fmt.Println("Running tests")
 	}
-	return runYarnCommand("jest", filepath.Join("pkg", "webui"))
+	return js.runYarnCommand("jest", filepath.Join("pkg", "webui"))
 }
 
 // Fmt formats all js files.
@@ -299,7 +325,7 @@ func (js Js) Fmt() error {
 	if mg.Verbose() {
 		fmt.Println("Running prettier on .js files")
 	}
-	return runYarnCommand("prettier",
+	return js.runYarnCommand("prettier",
 		"--config", "./config/.prettierrc.js",
 		"--write",
 		"./pkg/webui/**/*.js", "./config/**/*.js",
@@ -335,7 +361,7 @@ func (js Js) Storybook() error {
 	if mg.Verbose() {
 		fmt.Println("Serving storybook")
 	}
-	return runYarnCommandV("start-storybook",
+	return js.runYarnCommandV("start-storybook",
 		"--config-dir", "./config/storybook",
 		"--static-dir", "public",
 		"--port", "9001",
@@ -349,4 +375,22 @@ func (js Js) Vulnerabilities() error {
 		fmt.Println("Checking for vulnerabilities")
 	}
 	return runYarn("audit")
+}
+
+// CypressHeadless runs the Cypress end-to-end tests in the headless mode.
+func (js Js) CypressHeadless() error {
+	mg.Deps(Js.Deps)
+	if mg.Verbose() {
+		fmt.Println("Running Cypress E2E tests in headless mode")
+	}
+	return js.runCypress("run")
+}
+
+// CypressInteractive runs the Cypress end-to-end tests in interactive mode.
+func (js Js) CypressInteractive() error {
+	mg.Deps(Js.Deps)
+	if mg.Verbose() {
+		fmt.Println("Running Cypress E2E tests in interactive mode")
+	}
+	return js.runCypress("open")
 }

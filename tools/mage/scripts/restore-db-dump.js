@@ -21,8 +21,10 @@ const yargs = require('yargs')
 
 const argv = yargs.argv
 
-const dbName = argv.db || 'ttn_lorawan_test'
-const dump = argv.dump || '.cache/sqldump.sql'
+const dbName = argv.db || 'ttn_lorawan_dev'
+const dbDump = argv.dump || '.cache/sqldump.sql'
+
+const sqlDump = fs.readFileSync(dbDump, 'utf8')
 
 const client = new Client({
   user: 'root',
@@ -31,10 +33,22 @@ const client = new Client({
   port: 26257,
 })
 client.connect()
-const sql = fs.readFileSync(dump, 'utf8')
-client.query(`DROP DATABASE ${dbName}`, (err, res) => {
-  client.query(`CREATE DATABASE ${dbName}`, (err, res) => {
-    client.query(sql, (err, res) => {
+
+client.query(`DROP DATABASE ${dbName}`, err => {
+  if (err) {
+    throw err
+  }
+
+  client.query(`CREATE DATABASE ${dbName}`, err => {
+    if (err) {
+      throw err
+    }
+
+    client.query(sqlDump, err => {
+      if (err) {
+        throw err
+      }
+
       client.end()
     })
   })

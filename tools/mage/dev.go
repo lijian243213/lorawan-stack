@@ -30,7 +30,7 @@ type Dev mg.Namespace
 // Misspell fixes common spelling mistakes in files.
 func (Dev) Misspell() error {
 	if mg.Verbose() {
-		fmt.Printf("Fixing common spelling mistakes in files\n")
+		fmt.Println("Fixing common spelling mistakes in files")
 	}
 	return runGoTool("github.com/client9/misspell/cmd/misspell", "-w", "-i", "mosquitto",
 		".editorconfig",
@@ -62,6 +62,7 @@ var (
 	devDataDir            = ".env/data"
 	devDatabaseName       = "ttn_lorawan_dev"
 	devDockerComposeFlags = []string{"-p", "lorawan-stack-dev"}
+	databaseURI           = fmt.Sprintf("postgresql://root@localhost:26257/%s?sslmode=disable", devDatabaseName)
 )
 
 var devDatabases = []string{sqlDatabase, redisDatabase}
@@ -88,7 +89,7 @@ func execDockerComposeWithOutput(filepath string, args ...string) error {
 // SQLStart starts the SQL database of the development environment.
 func (Dev) SQLStart() error {
 	if mg.Verbose() {
-		fmt.Printf("Starting SQL databases\n")
+		fmt.Println("Starting SQL database")
 	}
 	if err := execDockerCompose(append([]string{"up", "-d"}, sqlDatabase)...); err != nil {
 		return err
@@ -99,7 +100,7 @@ func (Dev) SQLStart() error {
 // SQLStop stops the SQL database of the development environment.
 func (Dev) SQLStop() error {
 	if mg.Verbose() {
-		fmt.Printf("Stopping SQL databases\n")
+		fmt.Println("Stopping SQL database")
 	}
 	return execDockerCompose(append([]string{"stop"}, sqlDatabase)...)
 }
@@ -107,45 +108,58 @@ func (Dev) SQLStop() error {
 // SQLMakeSnapshot stores the current cockroach data folder for later restores.
 func (Dev) SQLMakeSnapshot() error {
 	if mg.Verbose() {
-		fmt.Printf("Making DB snapshot")
+		fmt.Println("Making DB snapshot")
 	}
-	os.RemoveAll(devDataDir + "/cockroach-snap")
-	return sh.RunV("cp", "-R", devDataDir+"/cockroach", devDataDir+"/cockroach-snap")
+	to := filepath.Join(devDataDir, "cockroach-snap")
+	from := filepath.Join(devDataDir, "cockroach")
+	if err := os.RemoveAll(to); err != nil {
+		return err
+	}
+	return sh.Copy(from, to)
 }
 
-// SQLRestoreSnapshot restores the previously taken snapshot, thus restoring all
-// previously snapshoted databases.
-func (Dev) SQLRestoreSnapshot() {
+// SQLRestoreSnapshot restores the previously taken snapshot, thus restoring all previously
+// snapshoted databases.
+func (d Dev) SQLRestoreSnapshot() error {
 	mg.Deps(Dev.SQLStop)
 	if mg.Verbose() {
-		fmt.Printf("Restoring DB snapshot")
+		fmt.Println("Restoring DB snapshot")
 	}
-	os.RemoveAll(devDataDir + "/cockroach")
-	sh.RunV("cp", "-R", devDataDir+"/cockroach-snap", devDataDir+"/cockroach")
-	mg.Deps(Dev.SQLStart)
+	to := filepath.Join(devDataDir, "cockroach")
+	from := filepath.Join(devDataDir, "cockroach-snap")
+	if err := os.RemoveAll(to); err != nil {
+		return err
+	}
+	if err := sh.Copy(from, to); err != nil {
+		return err
+	}
+	return d.SQLStart()
 }
 
-// SQLDump performs an SQL database dump of the dev database to the .cache
-// folder.
-func (Dev) SQLDump() error {
+// DBDump performs an SQL database dump of the dev database to the .cache folder.
+func (Dev) DBDump() error {
 	if mg.Verbose() {
-		fmt.Printf("Execute database dump\n")
+		fmt.Println("Saving database dump")
+	}
+	if err := os.MkdirAll(".cache", 0755); err != nil {
+		return err
 	}
 	return execDockerComposeWithOutput(filepath.Join(".cache", "sqldump.sql"), "exec", "-T", "cockroach", "./cockroach", "dump", devDatabaseName, "--insecure")
 }
 
-// SQLRestore restores the dev database using a previously generated dump.
-func (Dev) SQLRestore() error {
+// DBRestore restores the dev database using a previously generated dump.
+func (Dev) DBRestore() error {
+	mg.Deps(Js.Deps)
 	if mg.Verbose() {
-		fmt.Printf("Restore database from dump")
+		fmt.Println("Restoring database from dump")
 	}
-	return sh.Run("node", "./tools/mage/scripts/restore-db-dump.js", "--db", devDatabaseName)
+	return sh.Run("node", filepath.Join("tools", "mage", "scripts", "restore-db-dump.js"), "--db", devDatabaseName, "--dump", filepath.Join(".cache", "sqldump.sql"))
 }
 
 // DBStart starts the databases of the development environment.
 func (Dev) DBStart() error {
 	if mg.Verbose() {
-		fmt.Printf("Starting dev databases\n")
+		fmt.Println("Starting dev databases")
 	}
 	if err := execDockerCompose(append([]string{"up", "-d"}, devDatabases...)...); err != nil {
 		return err
@@ -156,7 +170,7 @@ func (Dev) DBStart() error {
 // DBStop stops the databases of the development environment.
 func (Dev) DBStop() error {
 	if mg.Verbose() {
-		fmt.Printf("Stopping dev databases\n")
+		fmt.Println("Stopping dev databases")
 	}
 	return execDockerCompose(append([]string{"stop"}, devDatabases...)...)
 }
@@ -165,7 +179,7 @@ func (Dev) DBStop() error {
 func (Dev) DBErase() error {
 	mg.Deps(Dev.DBStop)
 	if mg.Verbose() {
-		fmt.Printf("Erasing dev databases\n")
+		fmt.Println("Erasing dev databases")
 	}
 	return os.RemoveAll(devDataDir)
 }
@@ -174,7 +188,7 @@ func (Dev) DBErase() error {
 func (Dev) DBSQL() error {
 	mg.Deps(Dev.DBStart)
 	if mg.Verbose() {
-		fmt.Printf("Starting SQL shell\n")
+		fmt.Println("Starting SQL shell")
 	}
 	return execDockerCompose("exec", "cockroach", "./cockroach", "sql", "--insecure", "-d", devDatabaseName)
 }
@@ -183,7 +197,7 @@ func (Dev) DBSQL() error {
 func (Dev) DBRedisCli() error {
 	mg.Deps(Dev.DBStart)
 	if mg.Verbose() {
-		fmt.Printf("Starting Redis-CLI shell\n")
+		fmt.Println("Starting Redis-CLI shell")
 	}
 	return execDockerCompose("exec", "redis", "redis-cli")
 }
@@ -191,7 +205,7 @@ func (Dev) DBRedisCli() error {
 // InitStack initializes the Stack.
 func (Dev) InitStack() error {
 	if mg.Verbose() {
-		fmt.Printf("Initializing the Stack\n")
+		fmt.Println("Initializing the Stack")
 	}
 	if err := runGo("./cmd/ttn-lw-stack", "is-db", "init"); err != nil {
 		return err
@@ -225,6 +239,15 @@ func (Dev) InitStack() error {
 		"--logout-redirect-uri", "http://localhost:1885/console",
 		"--logout-redirect-uri", "/console",
 	)
+}
+
+// StartDevStack starts TTS in end-to-end test configuration.
+func (Dev) StartDevStack() error {
+	os.Setenv("TTN_LW_IS_DATABASE_URI", databaseURI)
+	if mg.Verbose() {
+		fmt.Println("Starting the Stack")
+	}
+	return runGoMute("./cmd/ttn-lw-stack", "start")
 }
 
 func init() {
