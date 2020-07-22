@@ -22,7 +22,9 @@ describe('OAuth change password', () => {
     cy.loginOAuth(user)
     cy.visit(`${Cypress.config('oauthRootPath')}/update-password`)
 
-    cy.findByText('Change password', { selector: 'h1' }).should('be.visible')
+    cy.findByText('Change password', {
+      selector: 'h1',
+    }).should('be.visible')
     cy.findByLabelText('Old password').should('be.visible')
     cy.findByLabelText('New password').should('be.visible')
     cy.findByLabelText('Confirm password').should('be.visible')
@@ -32,7 +34,9 @@ describe('OAuth change password', () => {
     cy.findWarningByLabelText('Revoke access')
       .should('contain', 'This will revoke access from all logged in devices')
       .and('be.visible')
-    cy.findByRole('button', { name: 'Change password' }).should('be.visible')
+    cy.findByRole('button', {
+      name: 'Change password',
+    }).should('be.visible')
     cy.findByRole('button', { name: 'Cancel' }).should('be.visible')
     cy.title().should('eq', `Change password - ${Cypress.config('siteName')}`)
   })
@@ -45,9 +49,14 @@ describe('OAuth change password', () => {
       password_confirm: 'ABCDefg123!',
     }
     cy.createUser(user)
-    cy.loginOAuth({ user_id: user.ids.user_id, password: user.password })
+    cy.loginOAuth({
+      user_id: user.ids.user_id,
+      password: user.password,
+    })
     cy.visit(`${Cypress.config('oauthRootPath')}/update-password`)
-    cy.findByRole('button', { name: 'Change password' }).click()
+    cy.findByRole('button', {
+      name: 'Change password',
+    }).click()
 
     cy.findErrorByLabelText('New password')
       .should('contain.text', 'New password is required')
@@ -59,7 +68,8 @@ describe('OAuth change password', () => {
     cy.location('pathname').should('eq', `${Cypress.config('oauthRootPath')}/update-password`)
   })
 
-  it('should successfully change password w/ revoking access', () => {
+  // TODO: Remove `skip` after https://github.com/TheThingsNetwork/lorawan-stack/issues/2951.
+  it.skip('should successfully change password w/ revoking access', () => {
     const newPassword = 'ABCDefg321!'
     const user = {
       ids: { user_id: 'test-user-id2' },
@@ -68,7 +78,10 @@ describe('OAuth change password', () => {
       password_confirm: 'ABCDefg123!',
     }
     cy.createUser(user)
-    cy.loginOAuth({ user_id: user.ids.user_id, password: user.password })
+    cy.loginOAuth({
+      user_id: user.ids.user_id,
+      password: user.password,
+    })
     cy.visit(`${Cypress.config('oauthRootPath')}/update-password`)
 
     cy.findByLabelText('Old password').type(user.password)
@@ -81,7 +94,8 @@ describe('OAuth change password', () => {
     cy.location('pathname').should('include', `${Cypress.config('oauthRootPath')}/login`)
   })
 
-  it('should successfully change password w/o revoking access', () => {
+  // TODO: Remove `skip` after https://github.com/TheThingsNetwork/lorawan-stack/issues/2951.
+  it.skip('should successfully change password w/o revoking access', () => {
     const newPassword = 'ABCDefg321!'
     const user = {
       ids: { user_id: 'test-user-id3' },
@@ -90,14 +104,19 @@ describe('OAuth change password', () => {
       password_confirm: 'ABCDefg123!',
     }
     cy.createUser(user)
-    cy.loginOAuth({ user_id: user.ids.user_id, password: user.password })
+    cy.loginOAuth({
+      user_id: user.ids.user_id,
+      password: user.password,
+    })
     cy.visit(`${Cypress.config('oauthRootPath')}/update-password`)
 
     cy.findByLabelText('Old password').type(user.password)
     cy.findByLabelText('New password').type(newPassword)
     cy.findByLabelText('Confirm password').type(newPassword)
     cy.findByLabelText('Revoke access').uncheck()
-    cy.findByRole('button', { name: 'Change password' }).click()
+    cy.findByRole('button', {
+      name: 'Change password',
+    }).click()
 
     cy.findByTestId('notification')
       .should('be.visible')
