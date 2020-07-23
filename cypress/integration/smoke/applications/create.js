@@ -15,7 +15,7 @@
 import { disableApplicationServer } from '../../../support/utils'
 import { defineSmokeTest } from '../utils'
 
-const applicationCreate = defineSmokeTest('should be able to create application', () => {
+const applicationCreate = defineSmokeTest('succeeds creating application', () => {
   const user = {
     ids: { user_id: 'app-create-test-user' },
     primary_email_address: 'test-user@example.com',

@@ -14,7 +14,7 @@
 
 import { defineSmokeTest } from '../utils'
 
-const loginConsole = defineSmokeTest('should be able to register and log into Console', () => {
+const loginConsole = defineSmokeTest('succeeds registering and logging into the Console', () => {
   const user = {
     user_id: 'console-login-test-user',
     name: 'Console Login Test User',
@@ -46,7 +46,7 @@ const loginConsole = defineSmokeTest('should be able to register and log into Co
   cy.findByTestId('full-error-view').should('not.exist')
 })
 
-const loginOAuth = defineSmokeTest('should be able to register and log into OAuth', () => {
+const loginOAuth = defineSmokeTest('succeeds registering and logging into the Oauth app', () => {
   const user = {
     user_id: 'oauth-login-test-user',
     name: 'OAuth Login Test User',
