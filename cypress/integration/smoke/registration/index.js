@@ -35,7 +35,7 @@ const loginConsole = defineSmokeTest('should be able to register and log into Co
     .should('be.visible')
     .should('contain', 'You have successfully registered and can login now')
 
-  // Login
+  // Login.
   // TODO: https://github.com/TheThingsNetwork/lorawan-stack/issues/2923
   cy.visit(Cypress.config('consoleRootPath'))
   cy.findByLabelText('User ID').type(user.user_id)

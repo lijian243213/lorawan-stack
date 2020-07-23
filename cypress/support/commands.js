@@ -124,7 +124,7 @@ Cypress.Commands.add('augmentStackConfig', fns => {
   })
 })
 
-// Selectors
+// Selectors.
 
 const getFieldDescriptorByLabel = label => {
   cy.findByLabelText(label).as('field')
@@ -140,7 +140,7 @@ const getFieldDescriptorByLabel = label => {
 Cypress.Commands.add('findErrorByLabelText', label => {
   getFieldDescriptorByLabel(label).as('error')
 
-  // Check for the error icon
+  // Check for the error icon.
   cy.get('@error')
     .children()
     .first()
@@ -154,7 +154,7 @@ Cypress.Commands.add('findErrorByLabelText', label => {
 Cypress.Commands.add('findWarningByLabelText', label => {
   getFieldDescriptorByLabel(label).as('warning')
 
-  // Check for the warning icon
+  // Check for the warning icon.
   cy.get('@warning')
     .children()
     .first()
