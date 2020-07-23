@@ -147,8 +147,8 @@ export default class OAuth extends React.PureComponent {
               />
               <Form.Field
                 title={sharedMessages.password}
-                name="password"
                 component={Input}
+                name="password"
                 type="password"
                 autoComplete="current-password"
                 required
