@@ -21,7 +21,7 @@ describe('OAuth login', () => {
     cy.visit(Cypress.config('oauthRootPath'))
   })
 
-  it('should display UI elements in place', () => {
+  it('displays UI elements in place', () => {
     cy.findByRole('link')
       .should('have.attr', 'href', `${Cypress.config('oauthRootPath')}/`)
       .findByRole('img')
@@ -37,7 +37,7 @@ describe('OAuth login', () => {
     cy.title().should('eq', `Login - ${Cypress.config('siteName')}`)
   })
 
-  it('should validate before submitting an empty form', () => {
+  it('validates before submitting an empty form', () => {
     cy.findByRole('button', { name: 'Login' }).click()
 
     cy.findErrorByLabelText('User ID')
@@ -50,7 +50,7 @@ describe('OAuth login', () => {
     cy.location('pathname').should('eq', `${Cypress.config('oauthRootPath')}/login`)
   })
 
-  it('should successfully login with valid credentials', () => {
+  it('succeeds logging in when using valid credentials', () => {
     const user = {
       ids: { user_id: 'test-user' },
       primary_email_address: 'test-user@example.com',
@@ -66,7 +66,7 @@ describe('OAuth login', () => {
     cy.findByTestId('full-error-view').should('not.exist')
   })
 
-  it('should fail and display an error when using invalid credentials', () => {
+  it('displays an error when using invalid credentials', () => {
     const user = { user_id: 'userwrong', password: 'userWr0ng!' }
 
     cy.findByLabelText('User ID').type(user.user_id)

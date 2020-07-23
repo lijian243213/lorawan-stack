@@ -17,7 +17,7 @@ describe('OAuth change password', () => {
     cy.dropAndSeedDatabase()
   })
 
-  it('should display UI elements in place', () => {
+  it('displays UI elements in place', () => {
     const user = { user_id: 'admin', password: 'admin' }
     cy.loginOAuth(user)
     cy.visit(`${Cypress.config('oauthRootPath')}/update-password`)
@@ -41,7 +41,7 @@ describe('OAuth change password', () => {
     cy.title().should('eq', `Change password - ${Cypress.config('siteName')}`)
   })
 
-  it('should validate before submitting an empty form', () => {
+  it('validates before submitting an empty form', () => {
     const user = {
       ids: { user_id: 'test-user-id1' },
       primary_email_address: 'test-user1@example.com',
@@ -69,7 +69,7 @@ describe('OAuth change password', () => {
   })
 
   // TODO: Remove `skip` after https://github.com/TheThingsNetwork/lorawan-stack/issues/2951.
-  it.skip('should successfully change password w/ revoking access', () => {
+  it.skip('succeeds changing password when revoking access', () => {
     const newPassword = 'ABCDefg321!'
     const user = {
       ids: { user_id: 'test-user-id2' },
@@ -95,7 +95,7 @@ describe('OAuth change password', () => {
   })
 
   // TODO: Remove `skip` after https://github.com/TheThingsNetwork/lorawan-stack/issues/2951.
-  it.skip('should successfully change password w/o revoking access', () => {
+  it.skip('succeeds changing password without revoking access', () => {
     const newPassword = 'ABCDefg321!'
     const user = {
       ids: { user_id: 'test-user-id3' },

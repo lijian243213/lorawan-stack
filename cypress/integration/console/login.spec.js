@@ -21,7 +21,7 @@ describe('Console login', () => {
     cy.visit(Cypress.config('consoleRootPath'))
   })
 
-  it('should fail and display an error when using invalid credentials', () => {
+  it('displays an error when using invalid credentials', () => {
     const usr = { user_id: 'does-not-exist-usr', password: '12345QWERTY!' }
 
     cy.findByLabelText('User ID').type(usr.user_id)
@@ -34,7 +34,7 @@ describe('Console login', () => {
       .should('be.visible')
   })
 
-  it('should successfully login with valid credentials', () => {
+  it('succeeds logging in with valid credentials', () => {
     const user = {
       ids: { user_id: 'test-user' },
       primary_email_address: 'test-user@example.com',

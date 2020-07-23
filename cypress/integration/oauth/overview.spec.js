@@ -17,7 +17,7 @@ describe('OAuth overview', () => {
     cy.dropAndSeedDatabase()
   })
 
-  it('should display UI elements in place', () => {
+  it('displays UI elements in place', () => {
     const user = {
       ids: { user_id: 'test-user' },
       primary_email_address: 'test-user@example.com',
@@ -36,7 +36,7 @@ describe('OAuth overview', () => {
       .and('eq', `${Cypress.config('oauthRootPath')}/update-password`)
   })
 
-  it('should successfully logout', () => {
+  it('succeeds when logging out', () => {
     cy.findByRole('button', { name: 'Logout' }).click()
 
     cy.url().should('include', `${Cypress.config('oauthRootPath')}/login`)

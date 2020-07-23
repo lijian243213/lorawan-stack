@@ -30,7 +30,7 @@ describe('Application create', () => {
     }
   })
 
-  it('should display UI elements in place', () => {
+  it('displays UI elements in place', () => {
     cy.createUser(user)
     cy.loginConsole({ user_id: user.ids.user_id, password: user.password })
     cy.visit(`${Cypress.config('consoleRootPath')}/applications/add`)
@@ -69,7 +69,7 @@ describe('Application create', () => {
     )
   })
 
-  it('should validate before submitting an empty form', () => {
+  it('validates before submitting an empty form', () => {
     cy.loginConsole({ user_id: user.ids.user_id, password: user.password })
     cy.visit(`${Cypress.config('consoleRootPath')}/applications/add`)
 
@@ -83,7 +83,7 @@ describe('Application create', () => {
     cy.location('pathname').should('eq', `${Cypress.config('consoleRootPath')}/applications/add`)
   })
 
-  describe('has no Application Server in the local cluster', () => {
+  describe('when has no Application Server in the local cluster', () => {
     beforeEach(() => {
       user = {
         ids: { user_id: 'create-app-no-as-test-user' },
@@ -97,7 +97,7 @@ describe('Application create', () => {
       cy.augmentStackConfig(disableApplicationServer)
     })
 
-    it('should display UI elements in place', () => {
+    it('displays UI elements in place', () => {
       cy.createUser(user)
       cy.loginConsole({ user_id: user.ids.user_id, password: user.password })
       cy.visit(`${Cypress.config('consoleRootPath')}/applications/add`)

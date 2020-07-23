@@ -18,7 +18,7 @@ describe('OAuth user registration', () => {
     cy.visit(`${Cypress.config('oauthRootPath')}/register`)
   })
 
-  it('should display UI elements in place', () => {
+  it('displays UI elements in place', () => {
     cy.findByText('Create a new The Things Stack for LoRaWAN account', { selector: 'h1' })
     cy.findByLabelText('User ID').should('be.visible')
     cy.findByLabelText('Name').should('be.visible')
@@ -30,7 +30,7 @@ describe('OAuth user registration', () => {
     cy.title().should('eq', `Register - ${Cypress.config('siteName')}`)
   })
 
-  it('should validate before submitting an empty form', () => {
+  it('validates before submitting an empty form', () => {
     cy.visit(`${Cypress.config('oauthRootPath')}/register`)
     cy.findByRole('button', { name: 'Register' }).click()
 
