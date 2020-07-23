@@ -100,7 +100,7 @@ const appHTML = `
 				SITE_TITLE:{{.Title}},
 				SITE_SUB_TITLE:{{.SubTitle}},
 				SENTRY_DSN:{{.SentryDSN}},
-				{{with .CSRFToken}}CSRF_TOKEN:{{.}}{{end}},
+				{{with .CSRFToken}}CSRF_TOKEN:{{.}},{{end}}
 				{{with .PageData}}PAGE_DATA:{{.}}{{end}}
 			};
 		  win.__ttn_config__ = config;
