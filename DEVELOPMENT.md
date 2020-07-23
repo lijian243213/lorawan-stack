@@ -853,7 +853,6 @@ Jest globals | Mocha globals | Used for
 3. `pkg/cypress/smoke` contains tests that simulate a complete user story trying to do almost everything a typical user would do. For example, a typical smoke test can verify that the user is able to register, login, create application and register The Things Uno. For more details and diffeence between regular end-to-end and smoke tests see the [End-to-end tests structure](#organizing-end-to-end-tests) section.
 4. and 5. `Cypress` stores screenshots and videos to the appropriate folder after running end-to-end tests. These should not be added to the repository.
 
-
 ##### Organizing end-to-end tests
 
 When writing end-to-end tests we comply with the following guidelines:
