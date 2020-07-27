@@ -15,6 +15,7 @@
 package ttnmage
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -22,6 +23,7 @@ import (
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+	"go.thethings.network/lorawan-stack/v3/pkg/identityserver/store"
 )
 
 // Dev namespace.
@@ -105,19 +107,6 @@ func (Dev) SQLStop() error {
 	return execDockerCompose(append([]string{"stop"}, sqlDatabase)...)
 }
 
-// SQLMakeSnapshot stores the current cockroach data folder for later restores.
-func (Dev) SQLMakeSnapshot() error {
-	if mg.Verbose() {
-		fmt.Println("Making DB snapshot")
-	}
-	to := filepath.Join(devDataDir, "cockroach-snap")
-	from := filepath.Join(devDataDir, "cockroach")
-	if err := os.RemoveAll(to); err != nil {
-		return err
-	}
-	return sh.Copy(from, to)
-}
-
 // SQLRestoreSnapshot restores the previously taken snapshot, thus restoring all previously
 // snapshoted databases.
 func (d Dev) SQLRestoreSnapshot() error {
@@ -148,12 +137,32 @@ func (Dev) DBDump() error {
 }
 
 // DBRestore restores the dev database using a previously generated dump.
-func (Dev) DBRestore() error {
-	mg.Deps(Js.Deps)
+func (Dev) DBRestore(ctx context.Context) error {
 	if mg.Verbose() {
 		fmt.Println("Restoring database from dump")
 	}
-	return sh.Run("node", filepath.Join("tools", "mage", "scripts", "restore-db-dump.js"), "--db", devDatabaseName, "--dump", filepath.Join(".cache", "sqldump.sql"))
+	db, err := store.Open(ctx, databaseURI)
+	if err != nil {
+		return nil
+	}
+	defer db.Close()
+
+	b, err := ioutil.ReadFile(filepath.Join(".cache", "sqldump.sql"))
+	if err != nil {
+		return nil
+	}
+
+	if err = db.Exec(fmt.Sprintf("DROP DATABASE %s;", devDatabaseName)).Error; err != nil {
+		return err
+	}
+	if err = db.Exec(fmt.Sprintf("CREATE DATABASE %s;", devDatabaseName)).Error; err != nil {
+		return err
+	}
+	if err = db.Exec(string(b)).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DBStart starts the databases of the development environment.
