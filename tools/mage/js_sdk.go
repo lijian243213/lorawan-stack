@@ -66,8 +66,8 @@ func (k JsSDK) Build() error {
 		return targetError(err)
 	}
 	isCI := os.Getenv("CI") == "true"
-	distExists := pathExists(filepath.Join("sdk", "js", "dist"))
-	if !ok || (isCI && distExists) {
+	 _, err = os.Stat(filepath.Join("sdk", "js", "dist"))
+	if !ok || (isCI && err == nil) {
 		return nil
 	}
 	mg.Deps(k.Deps, k.Definitions)
