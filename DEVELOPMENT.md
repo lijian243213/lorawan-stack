@@ -803,7 +803,7 @@ In some cases it can be necessary to select DOM elements using a special selecti
 - Select DOM elements using text captions and labels when possible.
   - Select form fields by its label via `cy.findByLabelText`, e.g. `cy.findByLabelText('User ID')`. Same for field errors,warnings and descriptions, use `cy.findErrorByLabelText`, `cy.findWarningByLabelText` and `cy.findDescriptionByLabelText`.
   - Select buttons, links, tabs and other elements that are described by [ARIA roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques#Roles) via `cy.findByRole`, e.g. `cy.findByRole('button', {name: 'Submit'})`.
-  - Select text elements via `cy.findByText`, e.g. `cy.findByText('Change password', {selector: 'h1'})`.
+  - Select text elements via `cy.findByText`.
 - Assert that selected elements are visible.
 
   ```html
