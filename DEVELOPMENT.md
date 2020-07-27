@@ -739,11 +739,13 @@ Make sure to build the frontend assets and run the stack before executing end-to
 > Note: Currently, we test our frontend only in Chromium based browsers.
 
 You can run `Cypress` in the headless mode by running the following command:
+
 ```bash
 $ tools/bin/mage endToEnd:CypressHeadless
 ```
 
 You can run `Cypress` in the interactive mode by running the following command:
+
 ```bash
 $ tools/bin/mage endToEnd:CypressInteractive
 ```
@@ -763,16 +765,21 @@ Code coverage can be used to verify that tests invoke code for handling edge cas
 To generate code coverage report run:
 
 - Global text summary.
+
 ```bash
-  npx nyc report --reporter=text-summary
+$ npx nyc report --reporter=text-summary
 ```
+
 - Per file text.
+
 ```bash
-  npx nyc report --reporter=text
+$ npx nyc report --reporter=text
 ```
+
 - Per file with UI. This command will generate `index.html` file in `coverage/lcov-report`.
+
 ```bash
-  npx nyc report --reporter=lcov
+$ npx nyc report --reporter=lcov
 ```
 
 #### Writing End-to-End Tests
@@ -807,11 +814,11 @@ In some cases it can be necessary to select DOM elements using a special selecti
   ```
 
   ```js
-    // Bad. This assertions will pass while not being visible to the user.
-    cy.findByTestId('test').should('exists')
+  // Bad. This assertions will pass while not being visible to the user.
+  cy.findByTestId('test').should('exists')
 
-    // Good. This assertion will rightfully fail.
-    cy.findByTestId('test').should('be.visible')
+  // Good. This assertion will rightfully fail.
+  cy.findByTestId('test').should('be.visible')
   ```
 
 ##### Test runner globals
