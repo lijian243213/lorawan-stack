@@ -1,0 +1,35 @@
+name: End-to-end Tests
+on:
+  pull_request:
+    paths:
+      - '*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'pkg/**'
+      - 'tools/**'
+      - 'config/**'
+      - '!config/stack/ttn-lw-stack.yml'
+      - 'package.json'
+      - 'pkg/webui/**'
+      - 'sdk/js/**'
+      - 'yarn.lock'
+
+jobs:
+  end-to-end:
+    name: Frontend based (cypress)
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+      - name: Make Mage
+        run: make tools/bin/mage
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.14'
+      - name: Initialize stack environment
+        run: tools/bin/mage init
+      - name: Run test preparations
+        run: tools/bin/mage dev:dbStop dev:dbErase dev:dbStart dev:initStack dev:dbDump js:Build
+      - name: Run frontend end-to-end tests
+        run: tools/bin/mage dev:startDevStack & tools/bin/mage -v js:cypressHeadless
