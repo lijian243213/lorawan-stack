@@ -66,7 +66,7 @@ func (k JsSDK) Build() error {
 		return targetError(err)
 	}
 	isCI := os.Getenv("CI") == "true"
-	 _, err = os.Stat(filepath.Join("sdk", "js", "dist"))
+	_, err = os.Stat(filepath.Join("sdk", "js", "dist"))
 	if !ok || (isCI && err == nil) {
 		return nil
 	}
