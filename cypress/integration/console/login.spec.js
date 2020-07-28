@@ -17,12 +17,9 @@ describe('Console login', () => {
     cy.dropAndSeedDatabase()
   })
 
-  beforeEach(() => {
-    cy.visit(Cypress.config('consoleRootPath'))
-  })
-
   it('displays an error when using invalid credentials', () => {
     const usr = { user_id: 'does-not-exist-usr', password: '12345QWERTY!' }
+    cy.visit(Cypress.config('consoleRootPath'))
 
     cy.findByLabelText('User ID').type(usr.user_id)
     cy.findByLabelText('Password').type(`${usr.password}{enter}`)
@@ -42,6 +39,7 @@ describe('Console login', () => {
       password_confirm: 'ABCDefg123!',
     }
     cy.createUser(user)
+    cy.visit(Cypress.config('consoleRootPath'))
 
     cy.findByLabelText('User ID').type(user.ids.user_id)
     cy.findByLabelText('Password').type(`${user.password}{enter}`)

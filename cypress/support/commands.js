@@ -97,6 +97,9 @@ Cypress.Commands.add('createUser', user => {
       },
     })
   })
+
+  cy.clearCookies()
+  cy.clearLocalStorage()
 })
 
 // Helper function to quickly seed the database to a fresh state using a
