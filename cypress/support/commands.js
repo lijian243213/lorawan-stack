@@ -98,6 +98,7 @@ Cypress.Commands.add('createUser', user => {
     })
   })
 
+  // Reset cookies and local storage to avoid csrf and session state inconsitencies within tests.
   cy.clearCookies()
   cy.clearLocalStorage()
 })

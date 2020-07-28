@@ -17,11 +17,9 @@ describe('OAuth login', () => {
     cy.dropAndSeedDatabase()
   })
 
-  beforeEach(() => {
-    cy.visit(Cypress.config('oauthRootPath'))
-  })
-
   it('displays UI elements in place', () => {
+    cy.visit(Cypress.config('oauthRootPath'))
+
     cy.findByRole('link')
       .should('have.attr', 'href', `${Cypress.config('oauthRootPath')}/`)
       .findByRole('img')
@@ -38,6 +36,8 @@ describe('OAuth login', () => {
   })
 
   it('validates before submitting an empty form', () => {
+    cy.visit(Cypress.config('oauthRootPath'))
+
     cy.findByRole('button', { name: 'Login' }).click()
 
     cy.findErrorByLabelText('User ID')
@@ -58,6 +58,7 @@ describe('OAuth login', () => {
       password_confirm: 'ABCDefg123!',
     }
     cy.createUser(user)
+    cy.visit(Cypress.config('oauthRootPath'))
 
     cy.findByLabelText('User ID').type(user.ids.user_id)
     cy.findByLabelText('Password').type(`${user.password}{enter}`)
@@ -68,6 +69,7 @@ describe('OAuth login', () => {
 
   it('displays an error when using invalid credentials', () => {
     const user = { user_id: 'userwrong', password: 'userWr0ng!' }
+    cy.visit(Cypress.config('oauthRootPath'))
 
     cy.findByLabelText('User ID').type(user.user_id)
     cy.findByLabelText('Password').type(`${user.password}{enter}`)
