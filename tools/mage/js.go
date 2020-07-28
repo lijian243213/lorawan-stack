@@ -197,11 +197,6 @@ func (js Js) Build() error {
 	if mg.Verbose() {
 		fmt.Println("Running Webpack")
 	}
-	isCI := os.Getenv("CI") == "true"
-	_, err := os.Stat("./public")
-	if isCI && err == nil {
-		return nil
-	}
 	return js.runWebpack("config/webpack.config.babel.js")
 }
 
@@ -228,9 +223,7 @@ func (js Js) Messages() error {
 	if err != nil {
 		return targetError(err)
 	}
-	isCI := os.Getenv("CI") == "true"
-	_, err = os.Stat(filepath.Join(".cache", "messages"))
-	if !ok || (isCI && err == nil) {
+	if !ok {
 		return nil
 	}
 	if mg.Verbose() {
