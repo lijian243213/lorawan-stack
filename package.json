@@ -158,8 +158,9 @@
   },
   "prettier": "./config/.prettierrc.js",
   "nyc": {
+    "report-dir": "coverage/cypress",
     "reporter": [
-      "text-summary"
+      "json"
     ],
     "include": [
       "pkg/webui/**/*.js"
