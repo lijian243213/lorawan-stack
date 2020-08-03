@@ -776,10 +776,10 @@ $ npx nyc report --reporter=text-summary
 $ npx nyc report --reporter=text
 ```
 
-- Per file with UI. This command will generate `index.html` file in `coverage/lcov-report`.
+- Per file with UI. This command will generate `index.html` file in the `coverage/cypress` folder.
 
 ```bash
-$ npx nyc report --reporter=lcov
+$ npx nyc report --reporter=html
 ```
 
 #### Writing End-to-End Tests
