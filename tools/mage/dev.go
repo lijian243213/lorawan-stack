@@ -245,7 +245,7 @@ func (Dev) StartDevStack() error {
 	if mg.Verbose() {
 		fmt.Println("Starting the Stack")
 	}
-	return execGo(nil, os.Stderr, "run", filepath.Join("cmd", "ttn-lw-stack"), "start")
+	return execGo(nil, os.Stderr, "run", "./cmd/ttn-lw-stack", "start")
 }
 
 func init() {
