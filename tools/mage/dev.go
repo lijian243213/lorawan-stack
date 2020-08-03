@@ -61,13 +61,12 @@ func (Dev) Misspell() error {
 var (
 	sqlDatabase           = "cockroach"
 	redisDatabase         = "redis"
+	devDatabases          = []string{sqlDatabase, redisDatabase}
 	devDataDir            = ".env/data"
 	devDatabaseName       = "ttn_lorawan_dev"
 	devDockerComposeFlags = []string{"-p", "lorawan-stack-dev"}
 	databaseURI           = fmt.Sprintf("postgresql://root@localhost:26257/%s?sslmode=disable", devDatabaseName)
 )
-
-var devDatabases = []string{sqlDatabase, redisDatabase}
 
 func dockerComposeFlags(args ...string) []string {
 	return append(devDockerComposeFlags, args...)
@@ -75,16 +74,6 @@ func dockerComposeFlags(args ...string) []string {
 
 func execDockerCompose(args ...string) error {
 	_, err := sh.Exec(nil, os.Stdout, os.Stderr, "docker-compose", dockerComposeFlags(args...)...)
-	return err
-}
-
-func execDockerComposeWithOutput(filepath string, args ...string) error {
-	output, err := sh.Output("docker-compose", dockerComposeFlags(args...)...)
-	if err != nil {
-		return err
-	}
-	message := []byte(output)
-	err = ioutil.WriteFile(filepath, message, 0644)
 	return err
 }
 
@@ -133,7 +122,11 @@ func (Dev) DBDump() error {
 	if err := os.MkdirAll(".cache", 0755); err != nil {
 		return err
 	}
-	return execDockerComposeWithOutput(filepath.Join(".cache", "sqldump.sql"), "exec", "-T", "cockroach", "./cockroach", "dump", devDatabaseName, "--insecure")
+	output, err := sh.Output("docker-compose", dockerComposeFlags("exec", "-T", "cockroach", "./cockroach", "dump", devDatabaseName, "--insecure")...)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filepath.Join(".cache", "sqldump.sql"), []byte(output), 0644)
 }
 
 // DBRestore restores the dev database using a previously generated dump.
@@ -151,18 +144,11 @@ func (Dev) DBRestore(ctx context.Context) error {
 	if err != nil {
 		return nil
 	}
-
-	if err = db.Exec(fmt.Sprintf("DROP DATABASE %s;", devDatabaseName)).Error; err != nil {
-		return err
-	}
-	if err = db.Exec(fmt.Sprintf("CREATE DATABASE %s;", devDatabaseName)).Error; err != nil {
-		return err
-	}
-	if err = db.Exec(string(b)).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return db.Exec(fmt.Sprintf(`DROP DATABASE %s;
+		CREATE DATABASE %s;
+		%s`,
+		devDatabaseName, devDatabaseName, string(b)),
+	).Error
 }
 
 // DBStart starts the databases of the development environment.
@@ -199,7 +185,10 @@ func (Dev) DBSQL() error {
 	if mg.Verbose() {
 		fmt.Println("Starting SQL shell")
 	}
-	return execDockerCompose("exec", "cockroach", "./cockroach", "sql", "--insecure", "-d", devDatabaseName)
+	return execDockerCompose("exec", "cockroach", "./cockroach", "sql",
+		"--insecure",
+		"-d", devDatabaseName,
+	)
 }
 
 // DBRedisCli starts a Redis-CLI shell.
@@ -256,7 +245,7 @@ func (Dev) StartDevStack() error {
 	if mg.Verbose() {
 		fmt.Println("Starting the Stack")
 	}
-	return runGoMute("./cmd/ttn-lw-stack", "start")
+	return execGo(nil, os.Stderr, "run", filepath.Join("cmd", "ttn-lw-stack"), "start")
 }
 
 func init() {

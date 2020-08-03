@@ -30,6 +30,11 @@ import (
 // Js namespace.
 type Js mg.Namespace
 
+var (
+	devPort  = 8080
+	prodPort = 1885
+)
+
 func yarnWorkingDirectoryArg(elem ...string) string {
 	return fmt.Sprintf("--cwd=%s", filepath.Join(elem...))
 }
@@ -81,28 +86,32 @@ func (js Js) runEslint(args ...string) error {
 }
 
 func (js Js) waitOn() error {
-	u, err := url.Parse(js.getURL())
+	u, err := url.Parse(js.frontendURL())
 	if err != nil {
 		return err
 	}
-	return js.runYarnCommand("wait-on", append([]string{
+	return js.runYarnCommand("wait-on", []string{
 		fmt.Sprintf("--timeout=%d", 120000),
 		fmt.Sprintf("--interval=%d", 1000),
 		fmt.Sprintf("http-get://%s/oauth", u.Host),
-	})...)
+	}...)
 }
 
 func (js Js) runCypress(command string, args ...string) error {
 	mg.Deps(js.waitOn)
-
-	return js.runYarnCommand("cypress", append([]string{command, fmt.Sprintf("--config-file=%s", filepath.Join("config", "cypress.json")), "--config", fmt.Sprintf("baseUrl=%s", js.getURL())}, args...)...)
+	// return js.runYarnCommand("cypress", append([]string{command, fmt.Sprintf("--config-file=%s", filepath.Join("config", "cypress.json")), "--config", fmt.Sprintf("baseUrl=%s", js.frontendURL())}, args...)...)
+	return js.runYarnCommand("cypress", append([]string{
+		command,
+		"--config-file", filepath.Join("config", "cypress.json"),
+		"--config", fmt.Sprintf("baseUrl=%s", js.frontendURL())},
+		args...)...)
 }
 
-func (js Js) getURL() string {
+func (js Js) frontendURL() string {
 	if js.isProductionMode() {
-		return "http://localhost:1885"
+		return fmt.Sprintf("http://localhost:%d", prodPort)
 	}
-	return "http://localhost:8080"
+	return fmt.Sprintf("http://localhost:%d", devPort)
 }
 
 func (Js) isProductionMode() bool {
