@@ -41,11 +41,11 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
 	"go.thethings.network/lorawan-stack/v3/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io"
-	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws"
-	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws/lbslns"
 	iogrpc "go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/grpc"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/udp"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws/lbslns"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/upstream"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/upstream/ns"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/upstream/packetbroker"
@@ -228,10 +228,13 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 			gs.RegisterTask(gs.Context(), fmt.Sprintf("serve_mqtt/%s", endpoint.Address()),
 				func(ctx context.Context) error {
 					l, err := gs.ListenTCP(endpoint.Address())
-					var lis net.Listener
-					if err == nil {
-						lis, err = endpoint.Listen(l)
+					if err != nil {
+						return errListenFrontend.WithCause(err).WithAttributes(
+							"address", endpoint.Address(),
+							"protocol", endpoint.Protocol(),
+						)
 					}
+					lis, err := endpoint.Listen(l)
 					if err != nil {
 						return errListenFrontend.WithCause(err).WithAttributes(
 							"address", endpoint.Address(),
@@ -253,11 +256,11 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 	}
 	for _, version := range []struct {
 		Name           string
-		Formatter         ws.Formatter
+		Formatter      ws.Formatter
 		listenerConfig listenerConfig
 	}{
 		{
-			Name:   "basicstation",
+			Name:      "basicstation",
 			Formatter: lbslns.NewFormatter(),
 			listenerConfig: listenerConfig{
 				fallbackFreqPlanID: conf.BasicStation.FallbackFrequencyPlanID,
@@ -287,10 +290,13 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 			gs.RegisterTask(gs.Context(), fmt.Sprintf("serve_%s/%s", version.Name, endpoint.Address()),
 				func(ctx context.Context) error {
 					l, err := gs.ListenTCP(endpoint.Address())
-					var lis net.Listener
-					if err == nil {
-						lis, err = endpoint.Listen(l)
+					if err != nil {
+						return errListenFrontend.WithCause(err).WithAttributes(
+							"address", endpoint.Address(),
+							"protocol", endpoint.Protocol(),
+						)
 					}
+					lis, err := endpoint.Listen(l)
 					if err != nil {
 						return errListenFrontend.WithCause(err).WithAttributes(
 							"address", endpoint.Address(),
