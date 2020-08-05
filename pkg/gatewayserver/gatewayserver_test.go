@@ -39,8 +39,8 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io"
-	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/basicstationlns"
-	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/basicstationlns/messages"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws/basicstationlns"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/udp"
 	gsredis "go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/redis"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/upstream/mock"
@@ -110,7 +110,7 @@ func TestGatewayServer(t *testing.T) {
 		},
 		BasicStation: gatewayserver.BasicStationConfig{
 			Listen: ":1887",
-			Config: basicstationlns.Config{
+			Config: ws.Config{
 				WSPingInterval:       wsPingInterval,
 				AllowUnauthenticated: true,
 			},
@@ -463,7 +463,7 @@ func TestGatewayServer(t *testing.T) {
 									}
 									var bsUpstream []byte
 									if payload.GetMType() == ttnpb.MType_JOIN_REQUEST {
-										var jreq messages.JoinRequest
+										var jreq basicstationlns.JoinRequest
 										err := jreq.FromUplinkMessage(uplink, test.EUFrequencyPlanID)
 										if err != nil {
 											cancel(err)
@@ -476,7 +476,7 @@ func TestGatewayServer(t *testing.T) {
 										}
 									}
 									if payload.GetMType() == ttnpb.MType_UNCONFIRMED_UP || payload.GetMType() == ttnpb.MType_CONFIRMED_UP {
-										var updf messages.UplinkDataFrame
+										var updf basicstationlns.UplinkDataFrame
 										err := updf.FromUplinkMessage(uplink, test.EUFrequencyPlanID)
 										if err != nil {
 											cancel(err)
@@ -494,7 +494,7 @@ func TestGatewayServer(t *testing.T) {
 									}
 								}
 								if msg.TxAcknowledgment != nil {
-									txConf := messages.TxConfirmation{
+									txConf := basicstationlns.TxConfirmation{
 										Diid:  0,
 										XTime: time.Now().Unix(),
 									}
@@ -519,7 +519,7 @@ func TestGatewayServer(t *testing.T) {
 								cancel(err)
 								return
 							}
-							var msg messages.DownlinkMessage
+							var msg basicstationlns.DownlinkMessage
 							if err := json.Unmarshal(data, &msg); err != nil {
 								cancel(err)
 								return
