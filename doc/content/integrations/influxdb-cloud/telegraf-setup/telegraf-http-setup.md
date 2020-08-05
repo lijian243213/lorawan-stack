@@ -41,6 +41,8 @@ In {{% tts %}} Console, [create a new webhook]({{< ref "/integrations/webhooks/c
 
 {{< figure src="../tts-webhook-info.png" alt="Creating webhook on The Things Stack" >}}
 
+>Note: keep in mind that Telegraf agent can be hosted somewhere other than your local machine. In that case, you need to adjust the **Base URL** according to your setup.
+
 Click the **Explore** tab on the left in InfluxDB Cloud 2.0. Select your bucket in the **FROM** window in the bottom. In the **Filter** window, select **_measurement** on the drop-down menu and tick the **http_listener_v2** box. 
 
 In another **Filter** window, you can select the **uplink_message_decoded_payload** and click the **Submit** field on the right to see the incoming data.
