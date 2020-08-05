@@ -40,7 +40,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws"
-	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws/basicstationlns"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws/lbslns"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/udp"
 	gsredis "go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/redis"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/upstream/mock"
@@ -463,7 +463,7 @@ func TestGatewayServer(t *testing.T) {
 									}
 									var bsUpstream []byte
 									if payload.GetMType() == ttnpb.MType_JOIN_REQUEST {
-										var jreq basicstationlns.JoinRequest
+										var jreq lbslns.JoinRequest
 										err := jreq.FromUplinkMessage(uplink, test.EUFrequencyPlanID)
 										if err != nil {
 											cancel(err)
@@ -476,7 +476,7 @@ func TestGatewayServer(t *testing.T) {
 										}
 									}
 									if payload.GetMType() == ttnpb.MType_UNCONFIRMED_UP || payload.GetMType() == ttnpb.MType_CONFIRMED_UP {
-										var updf basicstationlns.UplinkDataFrame
+										var updf lbslns.UplinkDataFrame
 										err := updf.FromUplinkMessage(uplink, test.EUFrequencyPlanID)
 										if err != nil {
 											cancel(err)
@@ -494,7 +494,7 @@ func TestGatewayServer(t *testing.T) {
 									}
 								}
 								if msg.TxAcknowledgment != nil {
-									txConf := basicstationlns.TxConfirmation{
+									txConf := lbslns.TxConfirmation{
 										Diid:  0,
 										XTime: time.Now().Unix(),
 									}
@@ -519,7 +519,7 @@ func TestGatewayServer(t *testing.T) {
 								cancel(err)
 								return
 							}
-							var msg basicstationlns.DownlinkMessage
+							var msg lbslns.DownlinkMessage
 							if err := json.Unmarshal(data, &msg); err != nil {
 								cancel(err)
 								return
