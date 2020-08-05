@@ -99,7 +99,6 @@ func (js Js) waitOn() error {
 
 func (js Js) runCypress(command string, args ...string) error {
 	mg.Deps(js.waitOn)
-	// return js.runYarnCommand("cypress", append([]string{command, fmt.Sprintf("--config-file=%s", filepath.Join("config", "cypress.json")), "--config", fmt.Sprintf("baseUrl=%s", js.frontendURL())}, args...)...)
 	return js.runYarnCommand("cypress", append([]string{
 		command,
 		"--config-file", filepath.Join("config", "cypress.json"),
