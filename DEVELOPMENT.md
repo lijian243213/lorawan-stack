@@ -852,12 +852,12 @@ Jest globals | Mocha globals | Used for
 `-- videos                      videos generated when running tests (5)
 ```
 
-1. `pkg/cypress/integrations` contains all test specifications.
-  - Each test file must be placed into corresponding folder (`console`/`oauth`).
+1. `pkg/cypress/integration` contains all test specifications.
+  - Each test file must be placed into corresponding folder (`console`/`oauth`/`smoke`).
   - Each test must follow the following naming: `{context}.spec.js`.
   - One test file must have end-to-end tests dedicated only to a specific entity or view.
-2. `pkg/cypress/{app}/shared` contains all test specification not directly related to a single entity or a view. For example, `side-navigation.spec.js` or `header.spec.js` must be placed into the `cypress/console/shared` folder because both components are present on multiple views and are partially related to the stack entities. Make sure to scope cypress selections within the tested component using `cy.within`.
-3. `pkg/cypress/smoke` contains tests that simulate a complete user story trying to do almost everything a typical user would do. For example, a typical smoke test can verify that the user is able to register, login, create application and register The Things Uno. For more details and diffeence between regular end-to-end and smoke tests see the [End-to-end tests structure](#organizing-end-to-end-tests) section.
+2. `pkg/cypress/{console|oauth}/shared` contains all test specification not directly related to a single entity or a view. For example, `side-navigation.spec.js` or `header.spec.js` must be placed into the `cypress/console/shared` folder because both components are present on multiple views and are partially related to the stack entities. Make sure to scope cypress selections within the tested component using `cy.within`.
+3. `pkg/cypress/integration/smoke` contains tests that simulate a complete user story trying to do almost everything a typical user would do. For example, a typical smoke test can verify that the user is able to register, login, create application and register The Things Uno. For more details and diffeence between regular end-to-end and smoke tests see the [End-to-end tests structure](#organizing-end-to-end-tests) section.
 4. and 5. `Cypress` stores screenshots and videos to the appropriate folder after running end-to-end tests. These should not be added to the repository.
 
 ##### Organizing end-to-end tests
@@ -875,15 +875,14 @@ When writing end-to-end tests we comply with the following guidelines:
 
 ##### Smoke tests
 
-We distinguish between regular end-to-end tests and smoke tests. With smoke tests we try to accumulate application state (redux store, local storage, application cache, etc.) and verify that the application works as expected. When writing smoke tests we comply with he following guidelines:
+We distinguish between regular end-to-end tests and smoke tests. While regular end-to-end tests are scoped to a specific view or component and tests those in depth, smoke tests are testing complete user stories that are critical to the overall initegrity of the application and usually comprise multiple components and views, e.g. login flow, user registration or creation of applications. When writing smoke tests we comply with he following guidelines:
 
 - Smoke tests are testing complete user stories in a **wide and shallow** manner, meaning:
-  - performing some complex and critical flow that touches multiple components, API's and/or views
+  - performing some complex and critical flow that touches multiple components, APIs and/or views
   - not testing different configurations or preconditions of the same flow in depth
   - For example, when testing registration of The Things Uno:
     1. Add test file `cypress/integration/smoke/devices/create.js`
     2. Describe the whole user story to register the device including creating an application (or using an existing one), link the application and create the end device.
-- For example, when testing registration of The Things Uno:
 - One smoke test should be encapsulated into a single `describeSmokeTest` declaration.
 
 ## Building and Running
