@@ -311,6 +311,8 @@ export default defineMessages({
   validateApiKey: 'API keys must follow the format "NNSXS.[…].[…]"',
   validateDelayFormat: '{field} must be a positive, whole number',
   validateEmail: 'An email address must use exactly one "@" and use no special characters',
+  validateFreqNumberic: 'All frequency values must be positive integers',
+  validateFreqRequired: 'All frequency values are required. Please remove empty entries.',
   validateIdFormat: '{field} must contain only lowercase letters, numbers and dashes (-)',
   validateInt32: '{field} must be a whole number, negative or positive',
   validateLatitude: 'Latitude must be a whole or decimal number between -90 and 90',
@@ -320,6 +322,8 @@ export default defineMessages({
   validateMqttUrl:
     'MQTT URLs must have the format "mqtt[s]://[username][:password]@host.domain[:port]"',
   validateNoSpaces: '{field} must contain no spaces',
+  validateNumberGte: '{field} must be at least {min} or higher',
+  validateNumberLte: '{field} must be {max} or lower',
   validatePasswordMatch: 'Passwords must match',
   validateRequired: '{field} is required',
   validateRights: 'At least one right must be selected',
