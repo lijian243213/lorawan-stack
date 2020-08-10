@@ -40,7 +40,7 @@ class Select extends React.PureComponent {
     onFocus: PropTypes.func,
     options: PropTypes.arrayOf(
       PropTypes.shape({
-        value: PropTypes.string,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         label: PropTypes.message,
       }),
     ),
