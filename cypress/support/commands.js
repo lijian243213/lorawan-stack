@@ -106,7 +106,6 @@ Cypress.Commands.add('createUser', user => {
 // Helper function to quickly seed the database to a fresh state using a
 // previously generated sql dump.
 Cypress.Commands.add('dropAndSeedDatabase', () => {
-  // Cy.exec('node tools/mage/scripts/restore-db-dump.js')
   cy.exec('tools/bin/mage dev:DBrestore')
     .its('code')
     .should('eq', 0)
